@@ -1,0 +1,20 @@
+# === Secrets / env (ห้ามขึ้น GitHub เด็ดขาด) ===
+.env
+*.env
+!.env.example
+
+# === Node / Frontend ===
+node_modules/
+dist/
+*.local
+
+# === Go / Backend ===
+bin/
+*.exe
+*.out
+
+# === IDE / OS ===
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

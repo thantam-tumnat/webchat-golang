@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go version *)",
+      "Bash(docker --version)",
+      "Bash(docker compose *)",
+      "Bash(psql --version)",
+      "Bash(go mod *)",
+      "Bash(go build *)",
+      "Bash(go vet *)",
+      "Bash(npm create *)",
+      "Bash(npm run *)",
+      "Bash(docker exec *)",
+      "Bash(go run *)",
+      "Bash(curl -s http://localhost:8080/health)",
+      "Bash(curl -s -X POST http://localhost:8080/api/users -H \"Content-Type: application/json\" -d '{\"username\":\"alice\"}')",
+      "Bash(curl -s -X POST http://localhost:8080/api/rooms -H \"Content-Type: application/json\" -d '{\"name\":\"general\"}')",
+      "Bash(curl -s -X POST http://localhost:8080/api/rooms/1/messages -H \"Content-Type: application/json\" -d '{\"user_id\":1,\"content\":\"hello world\"}')",
+      "Bash(curl -s \"http://localhost:8080/api/rooms/1/messages?page=1&limit=20\")",
+      "Bash(taskkill //F //IM api.exe)",
+      "Bash(taskkill //F //IM main.exe)",
+      "Bash(winget --version)",
+      "Bash(scoop --version)",
+      "Bash(choco --version)",
+      "Bash(winget install *)",
+      "Bash(winget search *)",
+      "Bash(\"/c/Users/thantam/AppData/Local/Microsoft/WinGet/Links/ngrok.exe\" version *)",
+      "Bash(ngrok version *)",
+      "Bash(ngrok update *)",
+      "Bash(\"/c/Users/thantam/AppData/Local/Microsoft/WinGet/Packages/Ngrok.Ngrok_Microsoft.Winget.Source_8wekyb3d8bbwe/ngrok.exe\" update *)",
+      "Bash(git config *)",
+      "Bash(echo \"user.name = [$\\(git config user.name\\)]\")",
+      "Bash(echo \"user.email = [$\\(git config user.email\\)]\")",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(grep -i \"\\\\.env$\")"
+    ]
+  }
+}

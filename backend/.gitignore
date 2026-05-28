@@ -1,0 +1,9 @@
+# env file จริง (ห้าม commit เพราะมี secret)
+.env
+
+# binary ที่ build ออกมา
+/bin/
+*.exe
+
+# go test cache
+*.out
