@@ -131,22 +131,6 @@ npm run dev
 ```
 - เปิด http://localhost:5173
 
----
-
-## ✅ วิธีทดสอบว่า Phase 1 ทำงานถูก
-
-1. เปิด http://localhost:5173 → ใส่ username → กด "เข้าใช้งาน"
-2. สร้างห้องใหม่ → ห้องโผล่ในรายการ
-3. คลิกเข้าห้อง → พิมพ์ข้อความ → กดส่ง → ข้อความปรากฏ (ฟองสีน้ำเงินชิดขวา = ของเรา)
-4. **ทดสอบ "เห็นข้อความของคนอื่น" (polling):**
-   - เปิด browser อีกหน้าต่าง (หรือ incognito) → ตั้ง username อีกชื่อ
-   - เข้าห้องเดียวกัน → ส่งข้อความ
-   - กลับไปดูหน้าต่างแรก → ข้อความใหม่จะโผล่ **ภายใน ~3 วินาที** (เพราะ polling)
-   - 👉 ใน Phase 3 (WebSocket) ข้อความจะเด้งขึ้น **ทันที** — จะได้เห็นความต่างชัดเจน
-
-ตรวจข้อมูลใน DB ได้ที่ Adminer (http://localhost:8081) → ตาราง `users`, `rooms`, `messages`
-
----
 
 ## 🔌 API Endpoints (Phase 1)
 
@@ -159,14 +143,3 @@ npm run dev
 | GET | `/api/rooms/:id/messages?page=1&limit=20` | ข้อความในห้อง (แบ่งหน้า) |
 | POST | `/api/rooms/:id/messages` | ส่งข้อความ `{ "user_id": 1, "content": "..." }` |
 
----
-
-## 🗺️ Roadmap
-
-- ✅ **Phase 1** — CRUD + polling (ตอนนี้)
-- ⬜ **Phase 2** — Auth: register/login + JWT + protect routes
-- ⬜ **Phase 3** — Real-time: เปลี่ยน polling เป็น WebSocket
-- ⬜ **Phase 4** — Online presence + typing indicator
-- ⬜ **Phase 5** — Scale ด้วย Redis Pub/Sub
-- ⬜ **Phase 6** — read receipt, edit/delete, avatar, infinite scroll
-- ⬜ **Phase 7** — Dockerfile + deploy guide
