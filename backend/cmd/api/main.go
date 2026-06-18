@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"chatapp/internal/config"
+	graphqldelivery "chatapp/internal/delivery/graphql"
 	httpdelivery "chatapp/internal/delivery/http"
 	"chatapp/internal/infrastructure/database"
 	"chatapp/internal/repository"
@@ -40,11 +41,19 @@ func main() {
 
 	handlers := httpdelivery.NewHandlers(userUC, roomUC, messageUC)
 
+	// GraphQL: ใช้ usecase ชุดเดียวกับ REST แล้วประกอบเป็น schema + handler
+	gqlResolver := graphqldelivery.NewResolver(userUC, roomUC, messageUC)
+	gqlSchema, err := graphqldelivery.NewSchema(gqlResolver)
+	if err != nil {
+		log.Fatalf("❌ สร้าง GraphQL schema ไม่สำเร็จ: %v", err)
+	}
+	gqlHandler := graphqldelivery.NewHandler(gqlSchema)
+
 	// 4) สร้าง Fiber app พร้อม custom error handler กลาง
 	app := fiber.New(fiber.Config{
 		ErrorHandler: httpdelivery.ErrorHandler,
 	})
-	httpdelivery.SetupRoutes(app, handlers, cfg.CORSOrigins)
+	httpdelivery.SetupRoutes(app, handlers, cfg.CORSOrigins, gqlHandler)
 
 	// 5) รัน server ใน goroutine เพื่อให้ main รอ signal ปิดได้
 	go func() {
