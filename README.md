@@ -1,17 +1,17 @@
 # 💬 Real-time Chat App (Go + React)
 
-> 📖 For project structure, request flow, and setup steps, see [workflow_explanation.md](workflow_explanation.md).
+> 📖 ดูโครงสร้างโปรเจค, request flow และขั้นตอนการติดตั้งได้ที่ [workflow_explanation.md](workflow_explanation.md)
 
 ---
 
 ## 🧱 Tech Stack
 
-| Layer | Technology |
+| ชั้น (Layer) | เทคโนโลยี |
 |-------|------------|
 | Backend | Go 1.22+ · Fiber v2 · GORM · PostgreSQL |
 | API | REST (`/api`) · GraphQL (`/graphql`, graphql-go) |
 | Frontend | React 19 · TypeScript · Vite · Tailwind CSS v4 |
-| Architecture | Clean Architecture (domain / usecase / repository / delivery) |
+| สถาปัตยกรรม | Clean Architecture (domain / usecase / repository / delivery) |
 
 ---
 
@@ -19,22 +19,22 @@
 
 ### REST (Phase 1)
 
-| Method | Path | Description |
+| Method | Path | คำอธิบาย |
 |--------|------|-------------|
-| GET | `/health` | Health check |
-| POST | `/api/users` | Create or fetch a user — `{ "username": "..." }` |
-| GET | `/api/rooms` | List all rooms |
-| POST | `/api/rooms` | Create a room — `{ "name": "..." }` |
-| GET | `/api/rooms/:id/messages?page=1&limit=20` | Paginated messages in a room |
-| POST | `/api/rooms/:id/messages` | Send a message — `{ "user_id": 1, "content": "..." }` |
+| GET | `/health` | ตรวจสถานะระบบ (health check) |
+| POST | `/api/users` | สร้างหรือดึง user — `{ "username": "..." }` |
+| GET | `/api/rooms` | ดึงรายชื่อห้องทั้งหมด |
+| POST | `/api/rooms` | สร้างห้องใหม่ — `{ "name": "..." }` |
+| GET | `/api/rooms/:id/messages?page=1&limit=20` | ดึงข้อความในห้องแบบแบ่งหน้า (pagination) |
+| POST | `/api/rooms/:id/messages` | ส่งข้อความ — `{ "user_id": 1, "content": "..." }` |
 
 ### GraphQL (`POST /graphql`)
 
-REST returns a **fixed shape per endpoint**. GraphQL is added on top so the client can
-ask for **exactly the fields it needs in a single request** — no over-fetching, no extra round trips.
+REST คืนข้อมูล **รูปร่างตายตัวต่อ endpoint** ส่วน GraphQL เพิ่มเข้ามาเพื่อให้ client
+ขอ **เฉพาะ field ที่ต้องการในคำขอเดียว** — ไม่ over-fetch และไม่ต้องยิงหลายรอบ
 
-**Key design — GraphQL is just another delivery layer; it calls the same usecases as REST.**
-Business logic is never duplicated, which is the whole point of Clean Architecture:
+**Design หลัก — GraphQL เป็นแค่ delivery layer อีกตัว ที่เรียก usecase ชุดเดียวกับ REST**
+business logic จึงไม่ถูกเขียนซ้ำ ซึ่งคือหัวใจของ Clean Architecture:
 
 ```
 REST handler   ─┐
@@ -42,20 +42,20 @@ REST handler   ─┐
 GraphQL resolver ┘
 ```
 
-> e.g. the `rooms` resolver is literally `return r.roomUC.List(ctx)` — the same usecase the REST
-> handler uses. Adding GraphQL didn't touch the domain or repository layer at all.
+> ตัวอย่าง: resolver ของ `rooms` คือ `return r.roomUC.List(ctx)` ตรง ๆ — เป็น usecase
+> ตัวเดียวกับที่ REST handler ใช้ การเพิ่ม GraphQL จึงไม่ต้องแตะชั้น domain หรือ repository เลย
 
 **Schema**
 
-| Kind | Field | Args | Description |
+| ประเภท | Field | Args | คำอธิบาย |
 |------|-------|------|-------------|
-| Query | `rooms` | — | List all rooms |
-| Query | `messages` | `roomId!`, `page`, `limit` | Paginated messages in a room |
-| Mutation | `createUser` | `username!` | Create or fetch a user |
-| Mutation | `createRoom` | `name!` | Create a room |
-| Mutation | `sendMessage` | `roomId!`, `userId!`, `content!` | Send a message |
+| Query | `rooms` | — | ดึงรายชื่อห้องทั้งหมด |
+| Query | `messages` | `roomId!`, `page`, `limit` | ดึงข้อความในห้องแบบแบ่งหน้า |
+| Mutation | `createUser` | `username!` | สร้างหรือดึง user |
+| Mutation | `createRoom` | `name!` | สร้างห้อง |
+| Mutation | `sendMessage` | `roomId!`, `userId!`, `content!` | ส่งข้อความ |
 
-**Example** — fetch rooms and a room's latest messages, picking only the fields the UI needs:
+**ตัวอย่าง** — ดึงรายชื่อห้องและข้อความล่าสุดในห้อง โดยเลือกเฉพาะ field ที่ UI ต้องใช้:
 
 ```graphql
 query {
@@ -67,6 +67,66 @@ query {
 }
 ```
 
-> A **GraphiQL playground** is enabled — open `GET /graphql` in the browser to explore the
-> schema and run queries interactively.
+> เปิดใช้ **GraphiQL playground** ไว้ — เข้า `GET /graphql` ในเบราว์เซอร์เพื่อดู schema
+> และลองรัน query แบบ interactive ได้ทันที
 
+#### ตัวอย่างการใช้งาน
+
+**1) Query — ดึงข้อความในห้องพร้อมชื่อคนส่ง (ใช้ตัวแปร)**
+
+```graphql
+query Messages($roomId: Int!, $limit: Int) {
+  messages(roomId: $roomId, limit: $limit) {
+    content
+    user { username }
+  }
+}
+```
+```json
+// variables
+{ "roomId": 1, "limit": 2 }
+
+// response
+{
+  "data": {
+    "messages": [
+      { "content": "สวัสดีทุกคน", "user": { "username": "alice" } },
+      { "content": "หวัดดีครับ",   "user": { "username": "bob" } }
+    ]
+  }
+}
+```
+
+> จุดสำคัญ: ได้ทั้งข้อความและ `user.username` **ในคำขอเดียว** — ถ้าเป็น REST จะได้แค่ `user_id`
+> แล้วต้องยิงขอ user เพิ่มอีกรอบ
+
+**2) Mutation — ส่งข้อความ แล้วเลือกรับเฉพาะ field ที่ต้องใช้กลับมา**
+
+```graphql
+mutation {
+  sendMessage(roomId: 1, userId: 1, content: "สวัสดีทุกคน") {
+    id
+    content
+    createdAt
+  }
+}
+```
+```json
+// response
+{
+  "data": {
+    "sendMessage": { "id": 42, "content": "สวัสดีทุกคน", "createdAt": "2026-06-18T10:30:00Z" }
+  }
+}
+```
+
+> เรียกผ่าน HTTP ก็ได้: `POST /graphql` ด้วย body `{ "query": "...", "variables": { ... } }`
+
+### REST vs GraphQL — ใช้ตัวไหนตอนไหน
+
+โปรเจคนี้ **ไม่ได้ใช้ GraphQL ทุกที่** แต่เลือกใช้ตามความเหมาะสมของแต่ละงาน:
+
+| งาน | ใช้ | เหตุผล |
+|------|------|--------|
+| โหลดข้อความในห้อง | **GraphQL** | ต้องการ message พร้อมข้อมูล `user` (ชื่อคนส่ง) ที่สัมพันธ์กันในคำขอเดียว — เลี่ยงการยิงขอ user ซ้ำ |
+| สร้าง user / ห้อง, ดึงรายชื่อห้อง, ส่งข้อความ | REST | เป็น CRUD ตรงไปตรงมา ไม่มี relation ซับซ้อน |
