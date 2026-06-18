@@ -61,12 +61,20 @@ messages(roomId: 1, limit: 25) {
 
 จะได้ response เป็น JSON
 { "content": "ข้อความที่ 1", "createdAt": "2026-06-18T10:00:00Z", "user": {"username":"alice"} },
+
+
 { "content": "ข้อความที่ 2", "createdAt": "2026-06-18T10:01:00Z", "user": {"username":"bob"} }
 
 
 frontend น่าไป map ต่อได้เลย
-เทียบมให้เห็นภาพ
+
+
+เทียบให้เห็นภาพ
+
+
 GraphQL:  fetch → map → เสร็จ
+
+
 REST:     fetch → ยิงขอ user → สร้าง map → merge → ค่อย map → เสร็จ
 
 
