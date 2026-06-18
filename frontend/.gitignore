@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# local env — ไม่ commit .env จริง แต่เก็บ .env.example ไว้เป็นแม่แบบ
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
