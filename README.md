@@ -67,8 +67,10 @@ messages(roomId: 1, limit: 25) {
 
 
 frontend น่าไป map ต่อได้เลย
+![alt text](image.png)
 
 
+![alt text](image-1.png)
 เทียบให้เห็นภาพ
 
 
