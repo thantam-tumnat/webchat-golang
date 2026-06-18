@@ -14,7 +14,7 @@ then gradually layering on features (Auth, WebSocket, Redis, Deploy) phase by ph
 ตารางเทียบโครงสร้าง RESTAPI กับ GraphQL
 ![alt text](image.png)
 ```
-cmd/api/main.go        Entry point — loads config, connects to DB, wires up
+main.go                Entry point — loads config, connects to DB, wires up
                        every layer (dependency injection), starts the server,
                        and handles graceful shutdown.
 
@@ -122,7 +122,7 @@ docker compose up -d
 ```bash
 cd backend
 cp .env.example .env        # Windows: copy .env.example .env
-go run ./cmd/api
+go run .
 ```
 - On success you'll see `🚀 server running at http://localhost:8080`
 - Tables are created automatically (AutoMigrate)
