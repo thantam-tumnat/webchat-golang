@@ -126,7 +126,7 @@ ws.onmessage = (e) => console.log(JSON.parse(e.data))
 
 
 
-// ผลลัพธ์: พอมีคนส่งข้อความเข้าห้อง 1 (ผ่าน REST) server จะ push ก้อนนี้มาให้ทุก connection
+พอมีคนส่งข้อความเข้าห้อง 1 (ผ่าน REST) server จะ push ก้อนนี้มาให้ทุก connection
 
 ```
 {
