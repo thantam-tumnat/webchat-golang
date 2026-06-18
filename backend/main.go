@@ -7,8 +7,8 @@ import (
 	"syscall"
 
 	"chatapp/internal/config"
-	"chatapp/internal/controllers"
-	"chatapp/internal/graphql"
+	"chatapp/internal/delivery/graphql"
+	"chatapp/internal/delivery/rest"
 	"chatapp/internal/infrastructure/database"
 	"chatapp/internal/repositories"
 	"chatapp/internal/usecases"
@@ -39,7 +39,7 @@ func main() {
 	roomUC := usecases.NewRoomUsecase(roomRepo)
 	messageUC := usecases.NewMessageUsecase(messageRepo, roomRepo, userRepo)
 
-	handlers := controllers.NewHandlers(userUC, roomUC, messageUC)
+	handlers := rest.NewHandlers(userUC, roomUC, messageUC)
 
 	// GraphQL: ใช้ usecase ชุดเดียวกับ REST แล้วประกอบเป็น schema + handler
 	gqlResolver := graphql.NewResolver(userUC, roomUC, messageUC)
@@ -51,9 +51,9 @@ func main() {
 
 	// 4) สร้าง Fiber app พร้อม custom error handler กลาง
 	app := fiber.New(fiber.Config{
-		ErrorHandler: controllers.ErrorHandler,
+		ErrorHandler: rest.ErrorHandler,
 	})
-	controllers.SetupRoutes(app, handlers, cfg.CORSOrigins, gqlHandler)
+	rest.SetupRoutes(app, handlers, cfg.CORSOrigins, gqlHandler)
 
 	// 5) รัน server ใน goroutine เพื่อให้ main รอ signal ปิดได้
 	go func() {
