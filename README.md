@@ -51,7 +51,6 @@ messages(roomId: 1, limit: 25) {
   createdAt        
   user { username }
 }
-
 ```
 จะได้ response เป็น JSON
 
@@ -62,9 +61,13 @@ messages(roomId: 1, limit: 25) {
 ```
 
 frontend น่าไป map ต่อได้เลย
+
+
+Request:
 ![alt text](image.png)
 
 
+Response:
 ![alt text](image-1.png)
 
 
