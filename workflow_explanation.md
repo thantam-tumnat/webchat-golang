@@ -11,6 +11,8 @@ then gradually layering on features (Auth, WebSocket, Redis, Deploy) phase by ph
 
 ### Backend (`backend/`)
 
+ตารางเทียบโครงสร้าง RESTAPI กับ GraphQL
+![alt text](image.png)
 ```
 cmd/api/main.go        Entry point — loads config, connects to DB, wires up
                        every layer (dependency injection), starts the server,
