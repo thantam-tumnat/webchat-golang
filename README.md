@@ -1,7 +1,5 @@
 # 💬 Real-time Chat App (Go + React)
 
-> 📖 For project structure, request flow, and setup steps, see [workflow_explanation.md](workflow_explanation.md).
-
 ---
 
 ## 🧱 Tech Stack
@@ -11,10 +9,10 @@
 | Backend | Go 1.22+ · Fiber · GORM · PostgreSQL |
 | API | REST · GraphQL |
 | Frontend | React 19 · TypeScript · Vite · Tailwind CSS |
-| Architecture | Clean Architecture (entity / repository / usecase / controller) |
+| Architecture | Clean Architecture (entity / repository / usecase / delivery) |
 
 ---
-### GraphQL 
+### REST vs GraphQL 
 
 REST returns a **fixed shape per endpoint**. GraphQL is added on top so the client can
 ask for **exactly the fields it needs in a single request** — no over-fetching, no extra round trips.
