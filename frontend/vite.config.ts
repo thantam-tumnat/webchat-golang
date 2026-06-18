@@ -27,6 +27,12 @@ export default defineConfig(({ mode }) => {
           target: backendUrl,
           changeOrigin: true,
         },
+        // WebSocket endpoint — ws: true ให้ proxy ส่งต่อการ upgrade เป็น WebSocket ได้
+        '/ws': {
+          target: backendUrl,
+          changeOrigin: true,
+          ws: true,
+        },
       },
     },
   }
