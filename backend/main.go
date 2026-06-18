@@ -9,6 +9,7 @@ import (
 	"chatapp/internal/config"
 	"chatapp/internal/delivery/graphql"
 	"chatapp/internal/delivery/rest"
+	"chatapp/internal/delivery/websocket"
 	"chatapp/internal/infrastructure/database"
 	"chatapp/internal/repositories"
 	"chatapp/internal/usecases"
@@ -35,9 +36,14 @@ func main() {
 	roomRepo := repositories.NewRoomRepository(db)
 	messageRepo := repositories.NewMessageRepository(db)
 
+	// WebSocket hub — เริ่มก่อน usecase เพราะ messageUC ต้องใช้เป็น notifier
+	// รัน Run() ใน goroutine เดียวคอยจัดการ connection + broadcast ตลอดอายุ server
+	hub := websocket.NewHub()
+	go hub.Run()
+
 	userUC := usecases.NewUserUsecase(userRepo)
 	roomUC := usecases.NewRoomUsecase(roomRepo)
-	messageUC := usecases.NewMessageUsecase(messageRepo, roomRepo, userRepo)
+	messageUC := usecases.NewMessageUsecase(messageRepo, roomRepo, userRepo, hub)
 
 	handlers := rest.NewHandlers(userUC, roomUC, messageUC)
 
@@ -54,6 +60,10 @@ func main() {
 		ErrorHandler: rest.ErrorHandler,
 	})
 	rest.SetupRoutes(app, handlers, cfg.CORSOrigins, gqlHandler)
+
+	// WebSocket route: GET /ws/rooms/:id — ฟังข้อความสดของห้องนั้น
+	// ลงทะเบียนหลัง SetupRoutes เพื่อให้ได้ middleware กลาง (recover/logger/cors) ด้วย
+	hub.RegisterRoutes(app)
 
 	// 5) รัน server ใน goroutine เพื่อให้ main รอ signal ปิดได้
 	go func() {

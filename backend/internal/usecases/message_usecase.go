@@ -10,17 +10,20 @@ type MessageUsecase struct {
 	messageRepo entities.MessageRepository
 	roomRepo    entities.RoomRepository
 	userRepo    entities.UserRepository
+	notifier    entities.MessageNotifier // ช่องทาง broadcast real-time (อาจเป็น nil ได้)
 }
 
 func NewMessageUsecase(
 	messageRepo entities.MessageRepository,
 	roomRepo entities.RoomRepository,
 	userRepo entities.UserRepository,
+	notifier entities.MessageNotifier,
 ) *MessageUsecase {
 	return &MessageUsecase{
 		messageRepo: messageRepo,
 		roomRepo:    roomRepo,
 		userRepo:    userRepo,
+		notifier:    notifier,
 	}
 }
 
@@ -37,7 +40,8 @@ func (uc *MessageUsecase) Send(ctx context.Context, roomID, userID uint, content
 	if _, err := uc.roomRepo.FindByID(ctx, roomID); err != nil {
 		return nil, err
 	}
-	if _, err := uc.userRepo.FindByID(ctx, userID); err != nil {
+	user, err := uc.userRepo.FindByID(ctx, userID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -48,6 +52,15 @@ func (uc *MessageUsecase) Send(ctx context.Context, roomID, userID uint, content
 	}
 	if err := uc.messageRepo.Create(ctx, msg); err != nil {
 		return nil, err
+	}
+
+	// แนบ user ที่เพิ่งตรวจไปแล้ว เพื่อให้ฝั่งรับแสดงชื่อผู้ส่งได้ทันที (เหมือนตอน List ที่ preload มา)
+	msg.User = user
+
+	// กระจายข้อความสด ๆ ให้ทุกคนในห้อง ถ้ามี notifier (WebSocket)
+	// ส่งผ่าน REST หรือ GraphQL ก็ broadcast เหมือนกัน เพราะวิ่งผ่าน usecase เดียวกันนี้
+	if uc.notifier != nil {
+		uc.notifier.NotifyMessage(roomID, msg)
 	}
 	return msg, nil
 }
