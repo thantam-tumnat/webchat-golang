@@ -30,7 +30,8 @@ func NewHandlers(
 }
 
 // SetupRoutes ลงทะเบียน middleware + เส้นทาง API ทั้งหมด
-func SetupRoutes(app *fiber.App, h *Handlers, corsOrigins string) {
+// gqlHandler คือ endpoint ของ GraphQL (delivery layer อีกตัวที่ reuse usecase เดิม)
+func SetupRoutes(app *fiber.App, h *Handlers, corsOrigins string, gqlHandler fiber.Handler) {
 	// --- middleware ที่ทำงานก่อนถึง handler ทุก request ---
 	app.Use(recover.New()) // ดัก panic ไม่ให้ server ตาย
 	app.Use(logger.New())  // log ทุก request: method, path, status, latency
@@ -55,4 +56,9 @@ func SetupRoutes(app *fiber.App, h *Handlers, corsOrigins string) {
 
 	api.Get("/rooms/:id/messages", h.Message.List)
 	api.Post("/rooms/:id/messages", h.Message.Send)
+
+	// --- GraphQL endpoint ---
+	// All: รองรับทั้ง GET (เปิด GraphiQL playground) และ POST (รัน query/mutation)
+	// REST ด้านบนยังทำงานเหมือนเดิม GraphQL เป็นแค่ประตูเพิ่มอีกบาน
+	app.All("/graphql", gqlHandler)
 }
