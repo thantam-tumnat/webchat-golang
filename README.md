@@ -97,7 +97,7 @@ GraphQL resolver ┘
 ```
 จาก ไดอะแกรมจะเห็นว่า GraphQL และ REST ใช้โครงสร้างเดียวกัน เราแค่ต้องเพิ่ม Controller ของ graphQL ซึ่งนิยมเรียกว่า Resolver
 
-### WebSocket 
+## WebSocket 
 
 REST กับ GraphQL เป็นแบบ **ถาม-ตอบ** — client ต้องถามเองทุกครั้ง
 WebSocket เพิ่มเข้ามาเพื่อให้ server **ดันข้อความใหม่มาหา client เอง** แบบ real-time (เลิก poll)
@@ -145,7 +145,6 @@ ws.onmessage = (e) => console.log(JSON.parse(e.data))
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/health` | Health check |
 | POST | `/api/users` | Create or fetch a user — `{ "username": "..." }` |
 | GET | `/api/rooms` | List all rooms |
 | POST | `/api/rooms` | Create a room |
