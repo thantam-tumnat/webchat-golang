@@ -122,11 +122,12 @@ GraphQL resolver ─┴─► usecase.Send ─► repository ─► PostgreSQL
 ```
 const ws = new WebSocket('ws://localhost:5173/ws/rooms/1')
 ws.onmessage = (e) => console.log(JSON.parse(e.data))
-
+```
 
 
 
 // ผลลัพธ์: พอมีคนส่งข้อความเข้าห้อง 1 (ผ่าน REST) server จะ push ก้อนนี้มาให้ทุก connection
+
 ```
 {
   "id": 42,
@@ -136,7 +137,7 @@ ws.onmessage = (e) => console.log(JSON.parse(e.data))
   "created_at": "2026-06-18T10:30:00Z",
   "user": { "id": 1, "username": "alice" }
 }
-
+```
 
 ## 🔌 API Endpoints
 
