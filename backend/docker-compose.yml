@@ -18,14 +18,40 @@ services:
       retries: 5
 
   # Adminer = หน้าเว็บจัดการ database (ดู/แก้ข้อมูลในตารางได้)
+  # อยู่ใน profile "tools" -> ขึ้นเฉพาะตอนสั่ง --profile tools เท่านั้น
   adminer:
     image: adminer:latest
     container_name: chatapp_adminer
     restart: unless-stopped
+    profiles: ["tools"]
     ports:
       - "8081:8080"
     depends_on:
       - postgres
+
+  # Backend (Go API + GraphQL) — build จาก Dockerfile ในโฟลเดอร์นี้
+  # อยู่ใน profile "app" -> `docker compose up` เฉย ๆ จะ "ไม่" ขึ้นตัวนี้
+  # สั่งให้ขึ้นด้วย: docker compose --profile app up
+  backend:
+    build: .
+    container_name: chatapp_backend
+    restart: unless-stopped
+    profiles: ["app"]
+    ports:
+      - "8080:8080"
+    environment:
+      APP_PORT: "8080"
+      # ★ สำคัญ: ใน docker network ต่อ DB ด้วยชื่อ service "postgres" ไม่ใช่ localhost
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: chatapp
+      DB_PASSWORD: chatapp
+      DB_NAME: chatapp
+      DB_SSLMODE: disable
+      CORS_ORIGINS: http://localhost:5173
+    depends_on:
+      postgres:
+        condition: service_healthy # รอ DB พร้อม (ผ่าน healthcheck) ก่อนค่อยสตาร์ท
 
 volumes:
   pgdata:

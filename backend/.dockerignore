@@ -1,0 +1,10 @@
+# ไม่ต้องคัดลอกเข้า image (.dockerignore รองรับ comment เฉพาะบรรทัดที่ขึ้นต้นด้วย #)
+
+# config เฉพาะเครื่อง — compose ตั้ง env ให้เองอยู่แล้ว
+.env
+*.env.local
+
+# git / ของชั่วคราว
+.git
+tmp/
+*.log
