@@ -10,15 +10,15 @@ export default defineConfig({
     // ถ้าใช้ tunnel เจ้าอื่นก็เพิ่ม host เข้าไปใน list นี้ หรือใช้ true เพื่ออนุญาตทุก host
     allowedHosts: ['.ngrok-free.app'],
     proxy: {
-      // ทุก request ที่ขึ้นต้นด้วย /api จะถูกส่งต่อไป backend ที่ port 8080
+      // ทุก request ที่ขึ้นต้นด้วย /api จะถูกส่งต่อไป backend ที่ port 8085
       // ทำให้ frontend เรียก /api/rooms ได้เลยโดยไม่ต้องเขียน full URL + ไม่ติด CORS ตอน dev
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:8085',
         changeOrigin: true,
       },
       // GraphQL endpoint — proxy ให้เป็น same-origin เหมือน /api (เลี่ยง CORS ตอน dev)
       '/graphql': {
-        target: 'http://localhost:8080',
+        target: 'http://localhost:8085',
         changeOrigin: true,
       },
     },
