@@ -1,132 +1,72 @@
 # 💬 Real-time Chat App (Go + React)
 
-> 📖 ดูโครงสร้างโปรเจค, request flow และขั้นตอนการติดตั้งได้ที่ [workflow_explanation.md](workflow_explanation.md)
+> 📖 For project structure, request flow, and setup steps, see [workflow_explanation.md](workflow_explanation.md).
 
 ---
 
 ## 🧱 Tech Stack
 
-| ชั้น (Layer) | เทคโนโลยี |
+| Layer | Technology |
 |-------|------------|
-| Backend | Go 1.22+ · Fiber v2 · GORM · PostgreSQL |
-| API | REST (`/api`) · GraphQL (`/graphql`, graphql-go) |
-| Frontend | React 19 · TypeScript · Vite · Tailwind CSS v4 |
-| สถาปัตยกรรม | Clean Architecture (domain / usecase / repository / delivery) |
+| Backend | Go 1.22+ · Fiber · GORM · PostgreSQL |
+| API | REST · GraphQL |
+| Frontend | React 19 · TypeScript · Vite · Tailwind CSS |
+| Architecture | Clean Architecture (entity / repository / usecase / controller) |
 
 ---
+### GraphQL 
+REST returns a **fixed shape per endpoint**. GraphQL is added on top so the client can
+ask for **exactly the fields it needs in a single request** — no over-fetching, no extra round trips.
+GraphQL (POST /graphql)
+REST คืนข้อมูล รูปร่างตายตัวต่อ endpoint ส่วน GraphQL เพิ่มเข้ามาเพื่อให้ client ขอ เฉพาะ field ที่ต้องการในคำขอเดียว — ไม่ over-fetch และไม่ต้องยิงหลายรอบ
+Design หลัก — GraphQL เป็นแค่ delivery layer อีกตัว ที่เรียก usecase ชุดเดียวกับ REST business logic ดีต่อ Clean architecture
+
+REST จะคืน JSON มาใน format ที่เรา fixed ไว้ ดังนั้นเราจะทำการเพิ่ม graphQL ลงในโปรเจคเพื่อให้ Client สามารถเลือกดึงเฉพาะค่าที่ต้องการได้
+ตัวอย่างเช่นในโปรเจคนี้ ฟังกฺ์ชัน listMessages ซึ่งมีหน้าที่ดึง ประวัติข้อความในห้องๆ หนึ่งมาแสดงบนหน้าแชท ซึ่งหากใช้ REST API
+จะต้องยิงอย่างน้อย 2 รอบ 
+- Get ครั้งแรก ดึง record การสนทนาแต่ละก้อน หรือ record ที่เก็บใน table message -> ได้ค่า id(id ของ record นั้น), room_id(ขอวห้องนั้น), user_id(ใครส่ง), content(เนื้อข้อความ), created_at(เวลาส่ง เพื่อให้ client มาเรียง) โดย default ที่ตั้งไว้จะดึง 25 record ล่าสุดก่อน
+
+เมือ่ได้ข้อความสนทนาล่าสุดแล้วจะดูไม่รู้เรื่องจนกว่าจะนำค่าที่ดึงมาจากการดึงครั้งแรก ไปดึงรายชื่อของคนที่ส่งมาแสดง
+- Get ครั้งสอง ดึงรายชื่อตาม user_id ทั้งหมดที่มีเพื่อให้หน้าเว็บนำมาแสดง ต้องเขียนฟังกชันรวบตาม ต้องเขียนฟังก์ชันให้รวบรวม id ที่ไม่ซ้ำเพื่อ fetch ทีเดียว และฟังก์ชัน map id กับ ชื่อ ที่ได้คืนมาก่อนแสดงผลด้วย
+
+หากเป็น GraphQL จะสามารถดึง content มาพร้อมกับ username ได้เลย ซึ่ง Resolver จะจัดเรียงมาให้เรียบร้อยแล้ว
+จาก graphQL query
+messages(roomId: 1, limit: 25) {
+  content
+  createdAt        ← ขอเพิ่มมาเลย
+  user { username }
+}
+
+จะได้ response เป็น JSON
+{ "content": "ข้อความที่ 1", "createdAt": "2026-06-18T10:00:00Z", "user": {"username":"alice"} },
+{ "content": "ข้อความที่ 2", "createdAt": "2026-06-18T10:01:00Z", "user": {"username":"bob"} }
+
+frontend น่าไป map ต่อได้เลย
+เทียบมให้เห็นภาพ
+GraphQL:  fetch → map → เสร็จ
+REST:     fetch → ยิงขอ user → สร้าง map → merge → ค่อย map → เสร็จ
 
 ## 🔌 API Endpoints
 
-### REST (Phase 1)
+### REST API
 
-| Method | Path | คำอธิบาย |
+| Method | Path | Description |
 |--------|------|-------------|
-| GET | `/health` | ตรวจสถานะระบบ (health check) |
-| POST | `/api/users` | สร้างหรือดึง user — `{ "username": "..." }` |
-| GET | `/api/rooms` | ดึงรายชื่อห้องทั้งหมด |
-| POST | `/api/rooms` | สร้างห้องใหม่ — `{ "name": "..." }` |
-| GET | `/api/rooms/:id/messages?page=1&limit=20` | ดึงข้อความในห้องแบบแบ่งหน้า (pagination) |
-| POST | `/api/rooms/:id/messages` | ส่งข้อความ — `{ "user_id": 1, "content": "..." }` |
+| GET | `/health` | Health check |
+| POST | `/api/users` | Create or fetch a user — `{ "username": "..." }` |
+| GET | `/api/rooms` | List all rooms |
+| POST | `/api/rooms` | Create a room |
+| GET | `/api/rooms/:id/messages?page=1&limit=20` | Paginated messages in a room |
+| POST | `/api/rooms/:id/messages` | Send a message  |
 
-### GraphQL (`POST /graphql`)
 
-REST คืนข้อมูล **รูปร่างตายตัวต่อ endpoint** ส่วน GraphQL เพิ่มเข้ามาเพื่อให้ client
-ขอ **เฉพาะ field ที่ต้องการในคำขอเดียว** — ไม่ over-fetch และไม่ต้องยิงหลายรอบ
-
-**Design หลัก — GraphQL เป็นแค่ delivery layer อีกตัว ที่เรียก usecase ชุดเดียวกับ REST**
-business logic จึงไม่ถูกเขียนซ้ำ ซึ่งคือหัวใจของ Clean Architecture:
+**Key design — GraphQL is just another delivery layer; it calls the same usecases as REST.**
+Business logic is never duplicated, which is the whole point of Clean Architecture:
 
 ```
 REST handler   ─┐
                 ├─► usecase (business logic) ─► repository ─► PostgreSQL
 GraphQL resolver ┘
 ```
+จาก ไดอะแกรมจะเห็นว่า GraphQL และ REST ใช้โครงสร้างเดียวกัน เราแค่ต้องเพิ่ม Controller ของ graphQL ซึ่งนิยมเรียกว่า Resolver
 
-> ตัวอย่าง: resolver ของ `rooms` คือ `return r.roomUC.List(ctx)` ตรง ๆ — เป็น usecase
-> ตัวเดียวกับที่ REST handler ใช้ การเพิ่ม GraphQL จึงไม่ต้องแตะชั้น domain หรือ repository เลย
-
-**Schema**
-
-| ประเภท | Field | Args | คำอธิบาย |
-|------|-------|------|-------------|
-| Query | `rooms` | — | ดึงรายชื่อห้องทั้งหมด |
-| Query | `messages` | `roomId!`, `page`, `limit` | ดึงข้อความในห้องแบบแบ่งหน้า |
-| Mutation | `createUser` | `username!` | สร้างหรือดึง user |
-| Mutation | `createRoom` | `name!` | สร้างห้อง |
-| Mutation | `sendMessage` | `roomId!`, `userId!`, `content!` | ส่งข้อความ |
-
-**ตัวอย่าง** — ดึงรายชื่อห้องและข้อความล่าสุดในห้อง โดยเลือกเฉพาะ field ที่ UI ต้องใช้:
-
-```graphql
-query {
-  rooms { id name }
-  messages(roomId: 1, limit: 5) {
-    content
-    user { username }
-  }
-}
-```
-
-> เปิดใช้ **GraphiQL playground** ไว้ — เข้า `GET /graphql` ในเบราว์เซอร์เพื่อดู schema
-> และลองรัน query แบบ interactive ได้ทันที
-
-#### ตัวอย่างการใช้งาน
-
-**1) Query — ดึงข้อความในห้องพร้อมชื่อคนส่ง (ใช้ตัวแปร)**
-
-```graphql
-query Messages($roomId: Int!, $limit: Int) {
-  messages(roomId: $roomId, limit: $limit) {
-    content
-    user { username }
-  }
-}
-```
-```json
-// variables
-{ "roomId": 1, "limit": 2 }
-
-// response
-{
-  "data": {
-    "messages": [
-      { "content": "สวัสดีทุกคน", "user": { "username": "alice" } },
-      { "content": "หวัดดีครับ",   "user": { "username": "bob" } }
-    ]
-  }
-}
-```
-
-> จุดสำคัญ: ได้ทั้งข้อความและ `user.username` **ในคำขอเดียว** — ถ้าเป็น REST จะได้แค่ `user_id`
-> แล้วต้องยิงขอ user เพิ่มอีกรอบ
-
-**2) Mutation — ส่งข้อความ แล้วเลือกรับเฉพาะ field ที่ต้องใช้กลับมา**
-
-```graphql
-mutation {
-  sendMessage(roomId: 1, userId: 1, content: "สวัสดีทุกคน") {
-    id
-    content
-    createdAt
-  }
-}
-```
-```json
-// response
-{
-  "data": {
-    "sendMessage": { "id": 42, "content": "สวัสดีทุกคน", "createdAt": "2026-06-18T10:30:00Z" }
-  }
-}
-```
-
-> เรียกผ่าน HTTP ก็ได้: `POST /graphql` ด้วย body `{ "query": "...", "variables": { ... } }`
-
-### REST vs GraphQL — ใช้ตัวไหนตอนไหน
-
-โปรเจคนี้ **ไม่ได้ใช้ GraphQL ทุกที่** แต่เลือกใช้ตามความเหมาะสมของแต่ละงาน:
-
-| งาน | ใช้ | เหตุผล |
-|------|------|--------|
-| โหลดข้อความในห้อง | **GraphQL** | ต้องการ message พร้อมข้อมูล `user` (ชื่อคนส่ง) ที่สัมพันธ์กันในคำขอเดียว — เลี่ยงการยิงขอ user ซ้ำ |
-| สร้าง user / ห้อง, ดึงรายชื่อห้อง, ส่งข้อความ | REST | เป็น CRUD ตรงไปตรงมา ไม่มี relation ซับซ้อน |
