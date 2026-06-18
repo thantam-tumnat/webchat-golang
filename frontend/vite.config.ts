@@ -16,6 +16,11 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
+      // GraphQL endpoint — proxy ให้เป็น same-origin เหมือน /api (เลี่ยง CORS ตอน dev)
+      '/graphql': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
     },
   },
 })
