@@ -1,7 +1,7 @@
 package graphql
 
 import (
-	"chatapp/internal/usecase"
+	"chatapp/internal/usecases"
 
 	"github.com/graphql-go/graphql"
 )
@@ -10,15 +10,15 @@ import (
 // สังเกตว่า GraphQL เป็นแค่ delivery layer อีกตัว — เรียก usecase ชุดเดียวกับที่ REST ใช้
 // business logic จึงไม่ถูก copy ซ้ำ (จุดแข็งของ Clean Architecture)
 type Resolver struct {
-	userUC    *usecase.UserUsecase
-	roomUC    *usecase.RoomUsecase
-	messageUC *usecase.MessageUsecase
+	userUC    *usecases.UserUsecase
+	roomUC    *usecases.RoomUsecase
+	messageUC *usecases.MessageUsecase
 }
 
 func NewResolver(
-	userUC *usecase.UserUsecase,
-	roomUC *usecase.RoomUsecase,
-	messageUC *usecase.MessageUsecase,
+	userUC *usecases.UserUsecase,
+	roomUC *usecases.RoomUsecase,
+	messageUC *usecases.MessageUsecase,
 ) *Resolver {
 	return &Resolver{userUC: userUC, roomUC: roomUC, messageUC: messageUC}
 }
@@ -34,7 +34,7 @@ func (r *Resolver) messages(p graphql.ResolveParams) (interface{}, error) {
 	page := optInt(p.Args, "page", 1)
 	limit := optInt(p.Args, "limit", 50)
 
-	// usecase.List คืน (messages, total, error) — GraphQL ใช้แค่ messages
+	// usecases.List คืน (messages, total, error) — GraphQL ใช้แค่ messages
 	msgs, _, err := r.messageUC.List(p.Context, roomID, page, limit)
 	return msgs, err
 }

@@ -1,4 +1,4 @@
-package domain
+package entities
 
 // AppError คือ error มาตรฐานของระบบ มี HTTP status + code + message
 // ทำให้ทุก error ที่ส่งกลับ client มีรูปแบบเดียวกัน { "code": ..., "message": ... }

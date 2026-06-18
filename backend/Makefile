@@ -13,11 +13,11 @@ db-down:
 
 # รัน backend
 run:
-	go run ./cmd/api
+	go run .
 
 # build เป็น binary
 build:
-	go build -o bin/api ./cmd/api
+	go build -o bin/api .
 
 tidy:
 	go mod tidy

@@ -11,7 +11,7 @@ RUN go mod download
 
 # คัดลอกโค้ดที่เหลือแล้ว build
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /server ./cmd/api
+RUN CGO_ENABLED=0 GOOS=linux go build -o /server .
 
 # ---------- run stage ----------
 # ภาพเล็ก ๆ สำหรับรันจริง ใส่แค่ binary + ca-certificates (เผื่อต่อ DB ผ่าน SSL)

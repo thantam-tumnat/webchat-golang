@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"chatapp/internal/domain"
+	"chatapp/internal/entities"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -37,8 +37,8 @@ func NewPostgres(dsn string) (*gorm.DB, error) {
 func AutoMigrate(db *gorm.DB) error {
 	log.Println("🔧 running auto-migration...")
 	return db.AutoMigrate(
-		&domain.User{},
-		&domain.Room{},
-		&domain.Message{},
+		&entities.User{},
+		&entities.Room{},
+		&entities.Message{},
 	)
 }

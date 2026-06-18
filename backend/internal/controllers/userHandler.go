@@ -1,18 +1,18 @@
-package http
+package controllers
 
 import (
-	"chatapp/internal/domain"
-	"chatapp/internal/usecase"
+	"chatapp/internal/entities"
+	"chatapp/internal/usecases"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 // UserHandler รับ HTTP request เกี่ยวกับ user แล้วเรียก usecase
 type UserHandler struct {
-	userUsecase *usecase.UserUsecase
+	userUsecase *usecases.UserUsecase
 }
 
-func NewUserHandler(userUsecase *usecase.UserUsecase) *UserHandler {
+func NewUserHandler(userUsecase *usecases.UserUsecase) *UserHandler {
 	return &UserHandler{userUsecase: userUsecase}
 }
 
@@ -26,7 +26,7 @@ type createUserRequest struct {
 func (h *UserHandler) Create(c *fiber.Ctx) error {
 	var req createUserRequest
 	if err := c.BodyParser(&req); err != nil {
-		return domain.ErrValidation
+		return entities.ErrValidation
 	}
 	if err := validateStruct(req); err != nil {
 		return err

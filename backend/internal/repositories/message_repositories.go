@@ -1,9 +1,9 @@
-package repository
+package repositories
 
 import (
 	"context"
 
-	"chatapp/internal/domain"
+	"chatapp/internal/entities"
 
 	"gorm.io/gorm"
 )
@@ -12,11 +12,11 @@ type messageRepository struct {
 	db *gorm.DB
 }
 
-func NewMessageRepository(db *gorm.DB) domain.MessageRepository {
+func NewMessageRepository(db *gorm.DB) entities.MessageRepository {
 	return &messageRepository{db: db}
 }
 
-func (r *messageRepository) Create(ctx context.Context, msg *domain.Message) error {
+func (r *messageRepository) Create(ctx context.Context, msg *entities.Message) error {
 	if err := r.db.WithContext(ctx).Create(msg).Error; err != nil {
 		return err
 	}
@@ -26,13 +26,13 @@ func (r *messageRepository) Create(ctx context.Context, msg *domain.Message) err
 
 // FindByRoom ดึงข้อความในห้องแบบแบ่งหน้า
 // คืน (ข้อความหน้านั้น, จำนวนข้อความทั้งหมดในห้อง, error)
-func (r *messageRepository) FindByRoom(ctx context.Context, roomID uint, page, limit int) ([]domain.Message, int64, error) {
-	var messages []domain.Message
+func (r *messageRepository) FindByRoom(ctx context.Context, roomID uint, page, limit int) ([]entities.Message, int64, error) {
+	var messages []entities.Message
 	var total int64
 
 	// นับจำนวนทั้งหมดก่อน (ไว้คำนวณจำนวนหน้าฝั่ง frontend)
 	if err := r.db.WithContext(ctx).
-		Model(&domain.Message{}).
+		Model(&entities.Message{}).
 		Where("room_id = ?", roomID).
 		Count(&total).Error; err != nil {
 		return nil, 0, err

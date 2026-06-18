@@ -1,7 +1,7 @@
-package http
+package controllers
 
 import (
-	"chatapp/internal/usecase"
+	"chatapp/internal/usecases"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -18,9 +18,9 @@ type Handlers struct {
 
 // NewHandlers ประกอบ handler ทั้งหมดจาก usecase (ทำใน main ตอน wiring)
 func NewHandlers(
-	userUC *usecase.UserUsecase,
-	roomUC *usecase.RoomUsecase,
-	messageUC *usecase.MessageUsecase,
+	userUC *usecases.UserUsecase,
+	roomUC *usecases.RoomUsecase,
+	messageUC *usecases.MessageUsecase,
 ) *Handlers {
 	return &Handlers{
 		User:    NewUserHandler(userUC),

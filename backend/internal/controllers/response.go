@@ -1,9 +1,9 @@
-package http
+package controllers
 
 import (
 	"errors"
 
-	"chatapp/internal/domain"
+	"chatapp/internal/entities"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -31,7 +31,7 @@ type PaginatedResponse struct {
 // ทุก error ที่ handler return จะวิ่งมาที่นี่ แล้วถูกแปลงเป็น JSON รูปแบบเดียวกัน
 func ErrorHandler(c *fiber.Ctx, err error) error {
 	// 1) error ของระบบเราเอง (AppError)
-	var appErr *domain.AppError
+	var appErr *entities.AppError
 	if errors.As(err, &appErr) {
 		return c.Status(appErr.Status).JSON(ErrorResponse{
 			Code:    appErr.Code,
@@ -51,8 +51,8 @@ func ErrorHandler(c *fiber.Ctx, err error) error {
 
 	// 3) error อื่นๆ ที่ไม่คาดคิด → 500 (ไม่เปิดเผยรายละเอียดภายในให้ client)
 	return c.Status(fiber.StatusInternalServerError).JSON(ErrorResponse{
-		Code:    domain.ErrInternal.Code,
-		Message: domain.ErrInternal.Message,
+		Code:    entities.ErrInternal.Code,
+		Message: entities.ErrInternal.Message,
 	})
 }
 
@@ -66,7 +66,7 @@ func validateStruct(s any) error {
 				fields = append(fields, fe.Field()+" ("+fe.Tag()+")")
 			}
 		}
-		return domain.ErrValidation.WithDetails(fields)
+		return entities.ErrValidation.WithDetails(fields)
 	}
 	return nil
 }

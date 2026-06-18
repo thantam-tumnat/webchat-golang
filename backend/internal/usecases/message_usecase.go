@@ -1,21 +1,21 @@
-package usecase
+package usecases
 
 import (
 	"context"
 
-	"chatapp/internal/domain"
+	"chatapp/internal/entities"
 )
 
 type MessageUsecase struct {
-	messageRepo domain.MessageRepository
-	roomRepo    domain.RoomRepository
-	userRepo    domain.UserRepository
+	messageRepo entities.MessageRepository
+	roomRepo    entities.RoomRepository
+	userRepo    entities.UserRepository
 }
 
 func NewMessageUsecase(
-	messageRepo domain.MessageRepository,
-	roomRepo domain.RoomRepository,
-	userRepo domain.UserRepository,
+	messageRepo entities.MessageRepository,
+	roomRepo entities.RoomRepository,
+	userRepo entities.UserRepository,
 ) *MessageUsecase {
 	return &MessageUsecase{
 		messageRepo: messageRepo,
@@ -25,7 +25,7 @@ func NewMessageUsecase(
 }
 
 // List ดึงข้อความในห้อง (ตรวจก่อนว่าห้องมีอยู่จริง)
-func (uc *MessageUsecase) List(ctx context.Context, roomID uint, page, limit int) ([]domain.Message, int64, error) {
+func (uc *MessageUsecase) List(ctx context.Context, roomID uint, page, limit int) ([]entities.Message, int64, error) {
 	if _, err := uc.roomRepo.FindByID(ctx, roomID); err != nil {
 		return nil, 0, err
 	}
@@ -33,7 +33,7 @@ func (uc *MessageUsecase) List(ctx context.Context, roomID uint, page, limit int
 }
 
 // Send ส่งข้อความใหม่ (ตรวจว่าห้อง + ผู้ส่ง มีอยู่จริง)
-func (uc *MessageUsecase) Send(ctx context.Context, roomID, userID uint, content string) (*domain.Message, error) {
+func (uc *MessageUsecase) Send(ctx context.Context, roomID, userID uint, content string) (*entities.Message, error) {
 	if _, err := uc.roomRepo.FindByID(ctx, roomID); err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (uc *MessageUsecase) Send(ctx context.Context, roomID, userID uint, content
 		return nil, err
 	}
 
-	msg := &domain.Message{
+	msg := &entities.Message{
 		RoomID:  roomID,
 		UserID:  userID,
 		Content: content,

@@ -1,17 +1,17 @@
-package http
+package controllers
 
 import (
-	"chatapp/internal/domain"
-	"chatapp/internal/usecase"
+	"chatapp/internal/entities"
+	"chatapp/internal/usecases"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type RoomHandler struct {
-	roomUsecase *usecase.RoomUsecase
+	roomUsecase *usecases.RoomUsecase
 }
 
-func NewRoomHandler(roomUsecase *usecase.RoomUsecase) *RoomHandler {
+func NewRoomHandler(roomUsecase *usecases.RoomUsecase) *RoomHandler {
 	return &RoomHandler{roomUsecase: roomUsecase}
 }
 
@@ -34,7 +34,7 @@ func (h *RoomHandler) List(c *fiber.Ctx) error {
 func (h *RoomHandler) Create(c *fiber.Ctx) error {
 	var req createRoomRequest
 	if err := c.BodyParser(&req); err != nil {
-		return domain.ErrValidation
+		return entities.ErrValidation
 	}
 	if err := validateStruct(req); err != nil {
 		return err

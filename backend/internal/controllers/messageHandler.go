@@ -1,17 +1,17 @@
-package http
+package controllers
 
 import (
-	"chatapp/internal/domain"
-	"chatapp/internal/usecase"
+	"chatapp/internal/entities"
+	"chatapp/internal/usecases"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type MessageHandler struct {
-	messageUsecase *usecase.MessageUsecase
+	messageUsecase *usecases.MessageUsecase
 }
 
-func NewMessageHandler(messageUsecase *usecase.MessageUsecase) *MessageHandler {
+func NewMessageHandler(messageUsecase *usecases.MessageUsecase) *MessageHandler {
 	return &MessageHandler{messageUsecase: messageUsecase}
 }
 
@@ -25,7 +25,7 @@ type sendMessageRequest struct {
 func (h *MessageHandler) List(c *fiber.Ctx) error {
 	roomID, err := c.ParamsInt("id")
 	if err != nil || roomID <= 0 {
-		return domain.ErrRoomNotFound
+		return entities.ErrRoomNotFound
 	}
 
 	// อ่าน query param page/limit พร้อม default + กันค่าผิด
@@ -56,12 +56,12 @@ func (h *MessageHandler) List(c *fiber.Ctx) error {
 func (h *MessageHandler) Send(c *fiber.Ctx) error {
 	roomID, err := c.ParamsInt("id")
 	if err != nil || roomID <= 0 {
-		return domain.ErrRoomNotFound
+		return entities.ErrRoomNotFound
 	}
 
 	var req sendMessageRequest
 	if err := c.BodyParser(&req); err != nil {
-		return domain.ErrValidation
+		return entities.ErrValidation
 	}
 	if err := validateStruct(req); err != nil {
 		return err
